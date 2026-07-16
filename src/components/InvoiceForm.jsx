@@ -9,6 +9,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
   const [invoice, setInvoice] = useState(null)
   const [companies, setCompanies] = useState([])
   const [saving, setSaving] = useState(false)
+  const [errors, setErrors] = useState({})
 
   useEffect(() => {
     getCompanies().then(setCompanies).catch(console.error)
@@ -38,32 +39,46 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
     }
   }, [existing])
 
+  const clearError = (field) => {
+    setErrors(prev => { const next = { ...prev }; delete next[field]; return next })
+  }
+
   const handleCustomerChange = (customer) => {
     setInvoice(prev => prev ? { ...prev, customer } : prev)
+    clearError('customer_name')
+    clearError('customer_cedula')
+    clearError('customer_address')
+    clearError('customer_phone')
   }
   const handleCustomerTypeChange = (customerType) => {
     setInvoice(prev => prev ? { ...prev, customerType } : prev)
+    clearError('customer_name')
+    clearError('customer_cedula')
+    clearError('customer_address')
+    clearError('customer_phone')
   }
   const handleItemsChange = (items) => {
     setInvoice(prev => prev ? { ...prev, items } : prev)
+    clearError('items')
   }
   const handleFieldChange = (field, value) => {
     setInvoice(prev => prev ? { ...prev, [field]: value } : prev)
+    clearError(field)
   }
 
   const validate = () => {
-    if (!invoice) return false
+    const next = {}
     if (invoice.customerType === 'client') {
-      if (!invoice.customer.name.trim()) { alert('El nombre del cliente es obligatorio'); return false }
-      if (!invoice.customer.cedula.trim()) { alert('La cédula/RUC del cliente es obligatoria'); return false }
-      if (!invoice.customer.address.trim()) { alert('La dirección del cliente es obligatoria'); return false }
-      if (!invoice.customer.phone.trim()) { alert('El teléfono del cliente es obligatorio'); return false }
+      if (!invoice.customer.name.trim()) next.customer_name = 'El nombre del cliente es obligatorio'
+      if (!invoice.customer.cedula.trim()) next.customer_cedula = 'La cédula/RUC del cliente es obligatoria'
+      if (!invoice.customer.address.trim()) next.customer_address = 'La dirección del cliente es obligatoria'
+      if (!invoice.customer.phone.trim()) next.customer_phone = 'El teléfono del cliente es obligatorio'
     }
     if (!invoice.items.some(i => i.description.trim())) {
-      alert('Agrega al menos un producto o servicio')
-      return false
+      next.items = 'Agrega al menos un producto o servicio'
     }
-    return true
+    setErrors(next)
+    return Object.keys(next).length === 0
   }
 
   const handleSaveDraft = async (e) => {
@@ -162,9 +177,11 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
         </div>
 
         <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
-          onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
+          onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange}
+          errors={errors} />
 
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
+        {errors.items && <p className="text-xs text-red-500 -mt-4">{errors.items}</p>}
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Descuento</h2>
