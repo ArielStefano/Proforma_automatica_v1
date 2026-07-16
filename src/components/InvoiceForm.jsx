@@ -5,7 +5,7 @@ import { saveInvoice, finalizeInvoice, generateId } from '../utils/storage'
 import { formatCurrency } from '../utils/format'
 import { getCompanies, getDefaultCompany } from '../utils/company'
 
-export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
+export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPreview }) {
   const [invoice, setInvoice] = useState(null)
   const [companies, setCompanies] = useState([])
   const [saving, setSaving] = useState(false)
