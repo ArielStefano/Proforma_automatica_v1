@@ -11,6 +11,8 @@ function toDb(invoice) {
     validity_days: invoice.validityDays,
     payment_terms: invoice.paymentTerms,
     notes: invoice.notes || '',
+    discount_type: invoice.discountType || 'percentage',
+    discount_value: invoice.discountValue || 0,
     status: invoice.status || 'draft',
   }
 }
@@ -26,6 +28,8 @@ function fromDb(row) {
     validityDays: row.validity_days,
     paymentTerms: row.payment_terms,
     notes: row.notes || '',
+    discountType: row.discount_type || 'percentage',
+    discountValue: row.discount_value || 0,
     status: row.status || 'draft',
   }
 }

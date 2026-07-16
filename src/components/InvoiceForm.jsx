@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import CustomerForm from './CustomerForm'
 import ItemTable from './ItemTable'
 import { saveInvoice, finalizeInvoice, generateId } from '../utils/storage'
+import { formatCurrency } from '../utils/format'
 
 export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
   const [invoice, setInvoice] = useState(null)
@@ -21,6 +22,8 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
         validityDays: 15,
         paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
         notes: '',
+        discountType: 'percentage',
+        discountValue: 0,
         status: 'draft',
       })
     }
@@ -135,6 +138,30 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
         <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
           onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Descuento</h2>
+          <div className="flex items-center gap-4 flex-wrap">
+            <select value={invoice.discountType}
+              onChange={e => handleFieldChange('discountType', e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+              <option value="percentage">Porcentaje (%)</option>
+              <option value="fixed">Monto Fijo ($)</option>
+            </select>
+            <input type="number" min="0" step={invoice.discountType === 'percentage' ? '1' : '0.01'}
+              value={invoice.discountValue}
+              onChange={e => handleFieldChange('discountValue', Number(e.target.value) || 0)}
+              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              placeholder="0" />
+            {invoice.discountValue > 0 && (
+              <span className="text-sm text-gray-500">
+                {invoice.discountType === 'percentage'
+                  ? `- ${invoice.discountValue}%`
+                  : `- $${formatCurrency(invoice.discountValue)}`}
+              </span>
+            )}
+          </div>
+        </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Validez de la Oferta</h2>

@@ -15,7 +15,10 @@ export default function InvoicePreview({ invoice, onBack }) {
 
   if (!invoice) return null
 
-  const total = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
+  const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
+  const discountVal = invoice.discountValue || 0
+  const discountAmt = invoice.discountType === 'percentage' ? subtotal * (discountVal / 100) : discountVal
+  const total = Math.max(0, subtotal - discountAmt)
   const isFinal = invoice.customerType === 'final'
   const isDraft = invoice.status !== 'finalized'
 
@@ -150,7 +153,14 @@ export default function InvoicePreview({ invoice, onBack }) {
 
         {/* Total */}
         <div className="flex justify-end pt-4 border-t-2 border-gray-300">
-          <div className="text-right">
+          <div className="text-right space-y-1">
+            <p className="text-sm text-gray-500">Subtotal: ${formatCurrency(subtotal)}</p>
+            {discountAmt > 0 && (
+              <p className="text-sm text-red-600">
+                Descuento ({invoice.discountType === 'percentage' ? `${discountVal}%` : '$' + formatCurrency(discountVal)}):
+                -${formatCurrency(discountAmt)}
+              </p>
+            )}
             <p className="text-sm text-gray-500 mb-1">TOTAL</p>
             <p className="text-3xl font-bold text-gray-800">${formatCurrency(total)}</p>
           </div>
