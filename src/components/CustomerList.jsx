@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getCustomers, saveCustomer, deleteCustomer } from '../utils/customers'
+import { getCustomers, saveCustomer, createCustomer, deleteCustomer } from '../utils/customers'
 import { useToast } from '../utils/toast'
 
 export default function CustomerList() {
@@ -41,7 +41,11 @@ export default function CustomerList() {
     if (!form.name.trim()) { toast('El nombre es obligatorio', 'warning'); return }
     if (!form.cedula.trim()) { toast('La cédula/RUC es obligatoria', 'warning'); return }
     try {
-      await saveCustomer({ ...form, id: editing?.id || undefined })
+      if (editing?.id) {
+        await saveCustomer({ ...form, id: editing.id })
+      } else {
+        await createCustomer(form)
+      }
       await load()
       cancelEdit()
       toast('Cliente guardado', 'success')
