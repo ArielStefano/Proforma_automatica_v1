@@ -121,6 +121,13 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         )}
 
+        {invoice.notes && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Observaciones</h2>
+            <p className="text-sm text-gray-700 whitespace-pre-line">{invoice.notes}</p>
+          </div>
+        )}
+
         {/* Footer */}
         <div className="mt-8 pt-4 border-t border-gray-200 text-center">
           <p className="text-xs text-gray-400">

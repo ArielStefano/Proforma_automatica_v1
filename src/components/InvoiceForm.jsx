@@ -20,6 +20,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
         items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
         validityDays: 15,
         paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
+        notes: '',
         status: 'draft',
       })
     }
@@ -153,6 +154,13 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
             onChange={e => handleFieldChange('paymentTerms', e.target.value)} rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" />
           <p className="text-xs text-gray-400 mt-1">Puedes modificar este texto según cada cotización.</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Observaciones</h2>
+          <textarea value={invoice.notes}
+            onChange={e => handleFieldChange('notes', e.target.value)} rows={3}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" placeholder="Notas adicionales para el cliente..." />
         </div>
       </div>
     </form>

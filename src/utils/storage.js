@@ -10,6 +10,7 @@ function toDb(invoice) {
     items: invoice.items,
     validity_days: invoice.validityDays,
     payment_terms: invoice.paymentTerms,
+    notes: invoice.notes || '',
     status: invoice.status || 'draft',
   }
 }
@@ -24,6 +25,7 @@ function fromDb(row) {
     items: row.items,
     validityDays: row.validity_days,
     paymentTerms: row.payment_terms,
+    notes: row.notes || '',
     status: row.status || 'draft',
   }
 }
