@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
-import { getCompanySettings } from '../utils/company'
+import { getCompany, getDefaultCompany } from '../utils/company'
 import { formatCurrency } from '../utils/format'
 
 export default function InvoicePreview({ invoice, onBack }) {
@@ -10,8 +10,14 @@ export default function InvoicePreview({ invoice, onBack }) {
   const printRef = useRef()
 
   useEffect(() => {
-    getCompanySettings().then(setCompany).catch(console.error)
-  }, [])
+    const load = async () => {
+      let c = null
+      if (invoice.companyId) c = await getCompany(invoice.companyId)
+      if (!c) c = await getDefaultCompany()
+      setCompany(c)
+    }
+    load().catch(console.error)
+  }, [invoice.companyId])
 
   if (!invoice) return null
 

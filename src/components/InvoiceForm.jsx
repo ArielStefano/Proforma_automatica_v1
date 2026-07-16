@@ -3,28 +3,37 @@ import CustomerForm from './CustomerForm'
 import ItemTable from './ItemTable'
 import { saveInvoice, finalizeInvoice, generateId } from '../utils/storage'
 import { formatCurrency } from '../utils/format'
+import { getCompanies, getDefaultCompany } from '../utils/company'
 
 export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
   const [invoice, setInvoice] = useState(null)
+  const [companies, setCompanies] = useState([])
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    getCompanies().then(setCompanies).catch(console.error)
+  }, [])
 
   useEffect(() => {
     if (existing) {
       setInvoice(existing)
     } else {
-      setInvoice({
-        id: generateId(),
-        number: null,
-        date: new Date().toISOString().split('T')[0],
-        customerType: 'client',
-        customer: { name: '', cedula: '', address: '', phone: '', email: '' },
-        items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
-        validityDays: 15,
-        paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
-        notes: '',
-        discountType: 'percentage',
-        discountValue: 0,
-        status: 'draft',
+      getDefaultCompany().then(def => {
+        setInvoice({
+          id: generateId(),
+          number: null,
+          date: new Date().toISOString().split('T')[0],
+          customerType: 'client',
+          customer: { name: '', cedula: '', address: '', phone: '', email: '' },
+          items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
+          validityDays: 15,
+          paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
+          notes: '',
+          companyId: def?.id || null,
+          discountType: 'percentage',
+          discountValue: 0,
+          status: 'draft',
+        })
       })
     }
   }, [existing])
@@ -137,6 +146,20 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
       <div className="space-y-6">
         <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
           onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
+
+        {companies.length > 1 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Empresa Emisora</h2>
+            <select value={invoice.companyId || ''}
+              onChange={e => handleFieldChange('companyId', e.target.value || null)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+              {companies.map(c => (
+                <option key={c.id} value={c.id}>{c.name || '(sin nombre)'}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
