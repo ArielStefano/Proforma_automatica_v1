@@ -1,3 +1,5 @@
+import { formatCurrency } from '../utils/format'
+
 export default function InvoiceList({ invoices, onNew, onView, onEdit, onDelete }) {
   const drafts = invoices.filter(i => i.status !== 'finalized')
   const finalized = invoices.filter(i => i.status === 'finalized')
@@ -43,7 +45,7 @@ export default function InvoiceList({ invoices, onNew, onView, onEdit, onDelete 
                     </td>
                     <td className="py-3 px-4 text-gray-800">{inv.customer.name || '(sin nombre)'}</td>
                     <td className="py-3 px-4 text-gray-500">{inv.date}</td>
-                    <td className="py-3 px-4 text-right font-medium text-gray-800">${total.toFixed(2)}</td>
+                    <td className="py-3 px-4 text-right font-medium text-gray-800">${formatCurrency(total)}</td>
                     <td className="py-3 px-4 text-center">
                       <div className="flex justify-center gap-2">
                         <button onClick={() => onView(inv.id)}

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 import { getCompanySettings } from '../utils/company'
+import { formatCurrency } from '../utils/format'
 
 export default function InvoicePreview({ invoice, onBack }) {
   const [company, setCompany] = useState(null)
@@ -132,8 +133,8 @@ export default function InvoicePreview({ invoice, onBack }) {
               <tr key={item.id} className={i < invoice.items.length - 1 ? 'border-b border-gray-100' : ''}>
                 <td className="py-3 text-gray-800">{item.description || '(sin descripción)'}</td>
                 <td className="py-3 text-center text-gray-800">{item.quantity}</td>
-                <td className="py-3 text-right text-gray-800">${Number(item.unitPrice).toFixed(2)}</td>
-                <td className="py-3 text-right font-medium text-gray-800">${(item.quantity * item.unitPrice).toFixed(2)}</td>
+                <td className="py-3 text-right text-gray-800">${formatCurrency(item.unitPrice)}</td>
+                <td className="py-3 text-right font-medium text-gray-800">${formatCurrency(item.quantity * item.unitPrice)}</td>
               </tr>
             ))}
           </tbody>
@@ -143,7 +144,7 @@ export default function InvoicePreview({ invoice, onBack }) {
         <div className="flex justify-end pt-4 border-t-2 border-gray-300">
           <div className="text-right">
             <p className="text-sm text-gray-500 mb-1">TOTAL</p>
-            <p className="text-3xl font-bold text-gray-800">${total.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-gray-800">${formatCurrency(total)}</p>
           </div>
         </div>
 

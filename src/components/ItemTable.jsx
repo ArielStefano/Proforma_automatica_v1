@@ -1,4 +1,5 @@
 import { generateId } from '../utils/storage'
+import { formatCurrency } from '../utils/format'
 
 export default function ItemTable({ items, onChange }) {
   const addItem = () => {
@@ -65,7 +66,7 @@ export default function ItemTable({ items, onChange }) {
                   />
                 </td>
                 <td className="py-2 px-1 text-right font-medium text-gray-800">
-                  ${(item.quantity * item.unitPrice).toFixed(2)}
+                  ${formatCurrency(item.quantity * item.unitPrice)}
                 </td>
                 <td className="py-2 px-1 text-center">
                   <button
@@ -94,7 +95,7 @@ export default function ItemTable({ items, onChange }) {
         </button>
         <div className="text-right">
           <span className="text-gray-500 text-sm mr-2">TOTAL:</span>
-          <span className="text-2xl font-bold text-gray-800">${total.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-gray-800">${formatCurrency(total)}</span>
         </div>
       </div>
     </div>
