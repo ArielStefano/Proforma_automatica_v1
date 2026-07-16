@@ -3,6 +3,7 @@ export default function InvoicePreview({ invoice, onBack }) {
 
   const total = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
   const isFinal = invoice.customerType === 'final'
+  const isDraft = invoice.status !== 'finalized'
 
   const calcExpiry = () => {
     const d = new Date(invoice.date)
@@ -13,25 +14,31 @@ export default function InvoicePreview({ invoice, onBack }) {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6 print:hidden">
-        <button
-          onClick={onBack}
-          className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-        >
+        <button onClick={onBack}
+          className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
           ← Volver
         </button>
-        <button
-          onClick={() => window.print()}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
-        >
+        <button onClick={() => window.print()}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
           Imprimir / PDF
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 print:p-4 print:shadow-none print:border-none">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 print:p-4 print:shadow-none print:border-none relative">
+        {isDraft && (
+          <div className="absolute top-4 right-4">
+            <span className="px-3 py-1 text-xs font-bold text-amber-700 bg-amber-100 border border-amber-300 rounded-full print:hidden">
+              BORRADOR
+            </span>
+          </div>
+        )}
+
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">PROFORMA</h1>
-            <p className="text-sm text-gray-500 mt-1">{invoice.number || `#${invoice.id.slice(-6).toUpperCase()}`}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {invoice.number || 'Sin numerar'}
+            </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">Fecha de emisión</p>

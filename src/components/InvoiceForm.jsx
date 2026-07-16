@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import CustomerForm from './CustomerForm'
 import ItemTable from './ItemTable'
-import { saveInvoice, generateId, getNextNumber } from '../utils/storage'
+import { saveInvoice, finalizeInvoice, generateId } from '../utils/storage'
 
 export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
   const [invoice, setInvoice] = useState(null)
@@ -11,17 +11,16 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
     if (existing) {
       setInvoice(existing)
     } else {
-      getNextNumber().then(({ number }) => {
-        setInvoice({
-          id: generateId(),
-          number,
-          date: new Date().toISOString().split('T')[0],
-          customerType: 'client',
-          customer: { name: '', cedula: '', address: '', phone: '', email: '' },
-          items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
-          validityDays: 15,
-          paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
-        })
+      setInvoice({
+        id: generateId(),
+        number: null,
+        date: new Date().toISOString().split('T')[0],
+        customerType: 'client',
+        customer: { name: '', cedula: '', address: '', phone: '', email: '' },
+        items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
+        validityDays: 15,
+        paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
+        status: 'draft',
       })
     }
   }, [existing])
@@ -29,38 +28,58 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
   const handleCustomerChange = (customer) => {
     setInvoice(prev => prev ? { ...prev, customer } : prev)
   }
-
   const handleCustomerTypeChange = (customerType) => {
     setInvoice(prev => prev ? { ...prev, customerType } : prev)
   }
-
   const handleItemsChange = (items) => {
     setInvoice(prev => prev ? { ...prev, items } : prev)
   }
-
   const handleFieldChange = (field, value) => {
     setInvoice(prev => prev ? { ...prev, [field]: value } : prev)
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!invoice) return
+  const validate = () => {
+    if (!invoice) return false
     if (invoice.customerType === 'client') {
-      if (!invoice.customer.name.trim()) { alert('El nombre del cliente es obligatorio'); return }
-      if (!invoice.customer.cedula.trim()) { alert('La cédula/RUC del cliente es obligatoria'); return }
-      if (!invoice.customer.address.trim()) { alert('La dirección del cliente es obligatoria'); return }
-      if (!invoice.customer.phone.trim()) { alert('El teléfono del cliente es obligatorio'); return }
+      if (!invoice.customer.name.trim()) { alert('El nombre del cliente es obligatorio'); return false }
+      if (!invoice.customer.cedula.trim()) { alert('La cédula/RUC del cliente es obligatoria'); return false }
+      if (!invoice.customer.address.trim()) { alert('La dirección del cliente es obligatoria'); return false }
+      if (!invoice.customer.phone.trim()) { alert('El teléfono del cliente es obligatorio'); return false }
     }
     if (!invoice.items.some(i => i.description.trim())) {
       alert('Agrega al menos un producto o servicio')
-      return
+      return false
     }
+    return true
+  }
+
+  const handleSaveDraft = async (e) => {
+    e.preventDefault()
+    if (!validate()) return
     try {
       setSaving(true)
-      await saveInvoice(invoice)
+      await saveInvoice({ ...invoice, status: 'draft', number: null })
       onSave()
     } catch (e) {
       alert('Error al guardar: ' + e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleFinalize = async (e) => {
+    e.preventDefault()
+    if (!validate()) return
+    try {
+      setSaving(true)
+      if (invoice.status === 'finalized') {
+        await saveInvoice(invoice)
+      } else {
+        await finalizeInvoice(invoice)
+      }
+      onSave()
+    } catch (e) {
+      alert('Error al finalizar: ' + e.message)
     } finally {
       setSaving(false)
     }
@@ -75,52 +94,50 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
 
   if (!invoice) return <div className="text-center py-20 text-gray-400">Cargando...</div>
 
+  const isFinalized = invoice.status === 'finalized'
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">
-          {existing ? 'Editar Cotización' : 'Nueva Cotización'}
-        </h2>
-        <div className="flex items-center gap-2">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {existing ? 'Editar Cotización' : 'Nueva Cotización'}
+          </h2>
           {invoice.number && (
-            <span className="text-sm text-gray-400 font-mono mr-2">{invoice.number}</span>
+            <p className="text-sm text-gray-400 font-mono mt-1">{invoice.number}</p>
           )}
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-          >
+          {isFinalized && (
+            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Finalizada</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button type="button" onClick={onCancel}
+            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
             Cancelar
           </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {saving ? 'Guardando...' : 'Generar Cotización'}
+          <button type="button" onClick={handleSaveDraft} disabled={saving || isFinalized}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition disabled:opacity-50">
+            {saving ? 'Guardando...' : 'Guardar Borrador'}
+          </button>
+          <button type="button" onClick={handleFinalize} disabled={saving}
+            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+            {saving ? 'Guardando...' : isFinalized ? 'Guardar Cambios' : 'Finalizar y Numerar'}
           </button>
         </div>
       </div>
 
       <div className="space-y-6">
-        <CustomerForm
-          customer={invoice.customer}
-          customerType={invoice.customerType}
-          onChange={handleCustomerChange}
-          onTypeChange={handleCustomerTypeChange}
-        />
+        <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
+          onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Validez de la Oferta</h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <label className="text-sm text-gray-600">Válida por</label>
-            <input
-              type="number" min="1" max="90"
-              value={invoice.validityDays}
+            <input type="number" min="1" max="90" value={invoice.validityDays}
               onChange={e => handleFieldChange('validityDays', Number(e.target.value) || 15)}
-              className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            />
+              className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
             <label className="text-sm text-gray-600">días desde la fecha de emisión</label>
             <span className="text-sm text-blue-600 font-medium ml-2">(vence el {calcExpiry()})</span>
           </div>
@@ -128,12 +145,9 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Términos de Pago</h2>
-          <textarea
-            value={invoice.paymentTerms}
-            onChange={e => handleFieldChange('paymentTerms', e.target.value)}
-            rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y"
-          />
+          <textarea value={invoice.paymentTerms}
+            onChange={e => handleFieldChange('paymentTerms', e.target.value)} rows={3}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" />
           <p className="text-xs text-gray-400 mt-1">Puedes modificar este texto según cada cotización.</p>
         </div>
       </div>

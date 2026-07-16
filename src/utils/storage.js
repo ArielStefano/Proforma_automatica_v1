@@ -3,13 +3,14 @@ import { supabase } from './supabase'
 function toDb(invoice) {
   return {
     id: invoice.id,
-    number: invoice.number,
+    number: invoice.number || null,
     date: invoice.date,
     customer_type: invoice.customerType,
     customer: invoice.customer,
     items: invoice.items,
     validity_days: invoice.validityDays,
     payment_terms: invoice.paymentTerms,
+    status: invoice.status || 'draft',
   }
 }
 
@@ -23,6 +24,7 @@ function fromDb(row) {
     items: row.items,
     validityDays: row.validity_days,
     paymentTerms: row.payment_terms,
+    status: row.status || 'draft',
   }
 }
 
@@ -61,7 +63,14 @@ export async function getInvoice(id) {
   return data ? fromDb(data) : null
 }
 
-export async function getNextNumber() {
+export async function finalizeInvoice(invoice) {
+  const { number } = await getNextNumber()
+  const updated = { ...invoice, number, status: 'finalized' }
+  await saveInvoice(updated)
+  return updated
+}
+
+async function getNextNumber() {
   const { data, error } = await supabase
     .rpc('increment_counter', { key_name: 'proforma_counter' })
   if (error) throw error
