@@ -69,6 +69,7 @@ export default function ItemTable({ items, onChange }) {
                 </td>
                 <td className="py-2 px-1 text-center">
                   <button
+                    type="button"
                     onClick={() => removeItem(item.id)}
                     disabled={items.length <= 1}
                     className="text-red-400 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed text-lg leading-none"
@@ -85,6 +86,7 @@ export default function ItemTable({ items, onChange }) {
 
       <div className="flex justify-between items-center mt-4">
         <button
+          type="button"
           onClick={addItem}
           className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
         >
