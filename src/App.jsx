@@ -5,8 +5,10 @@ import InvoicePreview from './components/InvoicePreview'
 import CustomerList from './components/CustomerList'
 import CompanySettings from './components/CompanySettings'
 import { getInvoices, getInvoice, deleteInvoice } from './utils/storage'
+import { ToastProvider, useToast } from './utils/toast'
 
-export default function App() {
+function AppContent() {
+  const toast = useToast()
   const [view, setView] = useState('list')
   const [invoices, setInvoices] = useState([])
   const [selectedInvoice, setSelectedInvoice] = useState(null)
@@ -49,7 +51,7 @@ export default function App() {
         await deleteInvoice(id)
         await loadInvoices()
       } catch (e) {
-        alert('Error al eliminar: ' + e.message)
+        toast('Error al eliminar: ' + e.message, 'error')
       }
     }
   }
@@ -122,3 +124,13 @@ export default function App() {
     </div>
   )
 }
+
+function App() {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
+  )
+}
+
+export default App

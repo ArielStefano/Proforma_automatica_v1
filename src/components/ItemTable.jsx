@@ -1,7 +1,14 @@
+import { useState } from 'react'
 import { generateId } from '../utils/storage'
 import { formatCurrency } from '../utils/format'
 
+function formatInput(n) {
+  return Number(n).toLocaleString('es-PY', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+}
+
 export default function ItemTable({ items, onChange }) {
+  const [focused, setFocused] = useState(null)
+
   const addItem = () => {
     onChange([...items, { id: generateId(), description: '', quantity: 1, unitPrice: 0 }])
   }
@@ -35,52 +42,59 @@ export default function ItemTable({ items, onChange }) {
             </tr>
           </thead>
           <tbody>
-            {items.map(item => (
-              <tr key={item.id} className="border-b border-gray-100">
-                <td className="py-2 px-1">
-                  <input
-                    type="text"
-                    value={item.description}
-                    onChange={e => updateItem(item.id, 'description', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                    placeholder="Ej: Cámara HD, Instalación..."
-                  />
-                </td>
-                <td className="py-2 px-1">
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={e => updateItem(item.id, 'quantity', e.target.value)}
-                    className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none mx-auto block"
-                  />
-                </td>
-                <td className="py-2 px-1">
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={item.unitPrice}
-                    onChange={e => updateItem(item.id, 'unitPrice', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-right text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  />
-                </td>
-                <td className="py-2 px-1 text-right font-medium text-gray-800">
-                  ${formatCurrency(item.quantity * item.unitPrice)}
-                </td>
-                <td className="py-2 px-1 text-center">
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.id)}
-                    disabled={items.length <= 1}
-                    className="text-red-400 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed text-lg leading-none"
-                    title="Eliminar"
-                  >
-                    ✕
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {items.map(item => {
+              const isFocused = focused === item.id
+              return (
+                <tr key={item.id} className="border-b border-gray-100">
+                  <td className="py-2 px-1">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={e => updateItem(item.id, 'description', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      placeholder="Ej: Cámara HD, Instalación..."
+                    />
+                  </td>
+                  <td className="py-2 px-1">
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={e => updateItem(item.id, 'quantity', e.target.value)}
+                      className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none mx-auto block"
+                    />
+                  </td>
+                  <td className="py-2 px-1">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={isFocused ? item.unitPrice || '' : formatInput(item.unitPrice)}
+                      onFocus={() => setFocused(item.id)}
+                      onBlur={() => setFocused(null)}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/[^\d.,]/g, '').replace(/,/g, '')
+                        updateItem(item.id, 'unitPrice', raw ? parseFloat(raw) : 0)
+                      }}
+                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-right text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </td>
+                  <td className="py-2 px-1 text-right font-medium text-gray-800">
+                    ${formatCurrency(item.quantity * item.unitPrice)}
+                  </td>
+                  <td className="py-2 px-1 text-center">
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      disabled={items.length <= 1}
+                      className="text-red-400 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed text-lg leading-none"
+                      title="Eliminar"
+                    >
+                      ✕
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

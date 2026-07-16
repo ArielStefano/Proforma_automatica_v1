@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getCustomers, createCustomer } from '../utils/customers'
+import { useToast } from '../utils/toast'
 
 const FINAL_CONSUMER = {
   name: 'CONSUMIDOR FINAL',
@@ -10,6 +11,7 @@ const FINAL_CONSUMER = {
 }
 
 export default function CustomerForm({ customer, customerType, onChange, onTypeChange, errors = {} }) {
+  const toast = useToast()
   const isFinal = customerType === 'final'
   const [savedCustomers, setSavedCustomers] = useState([])
   const [selectedCustomerId, setSelectedCustomerId] = useState('')
@@ -45,15 +47,15 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
 
   const handleSaveToRegistry = async () => {
     if (!customer.name.trim()) {
-      alert('Ingresa al menos el nombre del cliente para guardarlo')
+      toast('Ingresa al menos el nombre del cliente', 'warning')
       return
     }
     try {
       await createCustomer(customer)
       setSavedCustomers(await getCustomers())
-      alert('Cliente guardado en el registro')
+      toast('Cliente guardado en el registro', 'success')
     } catch (e) {
-      alert('Error al guardar cliente: ' + e.message)
+      toast('Error al guardar cliente: ' + e.message, 'error')
     }
   }
 

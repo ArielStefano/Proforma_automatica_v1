@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { getCustomers, saveCustomer, deleteCustomer } from '../utils/customers'
+import { useToast } from '../utils/toast'
 
 export default function CustomerList() {
+  const toast = useToast()
   const [customers, setCustomers] = useState([])
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ name: '', cedula: '', address: '', phone: '', email: '' })
@@ -36,14 +38,15 @@ export default function CustomerList() {
   }
 
   const handleSave = async () => {
-    if (!form.name.trim()) { alert('El nombre es obligatorio'); return }
-    if (!form.cedula.trim()) { alert('La cédula/RUC es obligatoria'); return }
+    if (!form.name.trim()) { toast('El nombre es obligatorio', 'warning'); return }
+    if (!form.cedula.trim()) { toast('La cédula/RUC es obligatoria', 'warning'); return }
     try {
       await saveCustomer({ ...form, id: editing?.id || undefined })
       await load()
       cancelEdit()
+      toast('Cliente guardado', 'success')
     } catch (e) {
-      alert('Error al guardar: ' + e.message)
+      toast('Error al guardar: ' + e.message, 'error')
     }
   }
 
@@ -52,8 +55,9 @@ export default function CustomerList() {
     try {
       await deleteCustomer(id)
       await load()
+      toast('Cliente eliminado', 'success')
     } catch (e) {
-      alert('Error al eliminar: ' + e.message)
+      toast('Error al eliminar: ' + e.message, 'error')
     }
   }
 

@@ -3,8 +3,10 @@ import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
 import { getCompany, getDefaultCompany } from '../utils/company'
 import { formatCurrency } from '../utils/format'
+import { useToast } from '../utils/toast'
 
 export default function InvoicePreview({ invoice, onBack }) {
+  const toast = useToast()
   const [company, setCompany] = useState(null)
   const [downloading, setDownloading] = useState(false)
   const printRef = useRef()
@@ -60,7 +62,7 @@ export default function InvoicePreview({ invoice, onBack }) {
       pdf.addImage(imgData, 'PNG', x, y, imgW, imgH)
       pdf.save(`${invoice.number || 'borrador'}.pdf`)
     } catch (e) {
-      alert('Error al generar PDF: ' + e.message)
+      toast('Error al generar PDF: ' + e.message, 'error')
     } finally {
       setDownloading(false)
     }

@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { getCompanies, saveCompany, createCompany, deleteCompany } from '../utils/company'
+import { useToast } from '../utils/toast'
 
 export default function CompanySettings({ onBack }) {
+  const toast = useToast()
   const [companies, setCompanies] = useState([])
   const [editing, setEditing] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -62,8 +64,9 @@ export default function CompanySettings({ onBack }) {
       }
       cancelEdit()
       setCompanies(await getCompanies())
+      toast('Empresa guardada', 'success')
     } catch (e) {
-      alert('Error al guardar: ' + e.message)
+      toast('Error al guardar: ' + e.message, 'error')
     } finally {
       setSaving(false)
     }
@@ -74,8 +77,9 @@ export default function CompanySettings({ onBack }) {
     try {
       await deleteCompany(id)
       setCompanies(await getCompanies())
+      toast('Empresa eliminada', 'success')
     } catch (e) {
-      alert('Error al eliminar: ' + e.message)
+      toast('Error al eliminar: ' + e.message, 'error')
     }
   }
 

@@ -4,8 +4,10 @@ import ItemTable from './ItemTable'
 import { saveInvoice, finalizeInvoice, generateId } from '../utils/storage'
 import { formatCurrency } from '../utils/format'
 import { getCompanies, getDefaultCompany } from '../utils/company'
+import { useToast } from '../utils/toast'
 
 export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPreview }) {
+  const toast = useToast()
   const [invoice, setInvoice] = useState(null)
   const [companies, setCompanies] = useState([])
   const [saving, setSaving] = useState(false)
@@ -87,9 +89,10 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
     try {
       setSaving(true)
       await saveInvoice({ ...invoice, status: 'draft', number: null })
+      toast('Borrador guardado', 'success')
       onSave()
     } catch (e) {
-      alert('Error al guardar: ' + e.message)
+      toast('Error al guardar: ' + e.message, 'error')
     } finally {
       setSaving(false)
     }
@@ -98,16 +101,21 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
   const handleFinalize = async (e) => {
     e.preventDefault()
     if (!validate()) return
+    if (invoice.status !== 'finalized') {
+      if (!window.confirm('¿Estás seguro de finalizar y numerar esta cotización? Ya no podrás editarla como borrador.')) return
+    }
     try {
       setSaving(true)
       if (invoice.status === 'finalized') {
         await saveInvoice(invoice)
+        toast('Cambios guardados', 'success')
       } else {
         await finalizeInvoice(invoice)
+        toast('Cotización finalizada y numerada', 'success')
       }
       onSave()
     } catch (e) {
-      alert('Error al finalizar: ' + e.message)
+      toast('Error al finalizar: ' + e.message, 'error')
     } finally {
       setSaving(false)
     }
