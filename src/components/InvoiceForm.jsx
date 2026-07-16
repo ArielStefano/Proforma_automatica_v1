@@ -144,21 +144,25 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
       </div>
 
       <div className="space-y-6">
-        <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
-          onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
-
-        {companies.length > 1 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Empresa Emisora</h2>
-            <select value={invoice.companyId || ''}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Empresa Emisora</h2>
+          </div>
+          {companies.length === 0 ? (
+            <p className="text-sm text-gray-400">No hay empresas registradas. Ve a Configuración &gt; Empresa para agregar una.</p>
+          ) : (
+            <select value={invoice.companyId || companies[0]?.id || ''}
               onChange={e => handleFieldChange('companyId', e.target.value || null)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
               {companies.map(c => (
                 <option key={c.id} value={c.id}>{c.name || '(sin nombre)'}</option>
               ))}
             </select>
-          </div>
-        )}
+          )}
+        </div>
+
+        <CustomerForm customer={invoice.customer} customerType={invoice.customerType}
+          onChange={handleCustomerChange} onTypeChange={handleCustomerTypeChange} />
 
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
 
