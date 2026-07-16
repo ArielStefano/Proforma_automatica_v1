@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'proforma_invoices'
+const COUNTER_KEY = 'proforma_counter'
 
 export function getInvoices() {
   try {
@@ -32,4 +33,11 @@ export function getInvoice(id) {
 
 export function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+}
+
+export function getNextNumber() {
+  const count = Number(localStorage.getItem(COUNTER_KEY) || '0') + 1
+  localStorage.setItem(COUNTER_KEY, String(count))
+  const year = new Date().getFullYear()
+  return { number: `COT-${year}-${String(count).padStart(4, '0')}`, seq: count }
 }

@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react'
 import CustomerForm from './CustomerForm'
 import ItemTable from './ItemTable'
-import { saveInvoice, generateId } from '../utils/storage'
+import { saveInvoice, generateId, getNextNumber } from '../utils/storage'
 
 function createEmptyInvoice() {
+  const { number } = getNextNumber()
   return {
     id: generateId(),
+    number,
     date: new Date().toISOString().split('T')[0],
     customerType: 'client',
     customer: { name: '', cedula: '', address: '', phone: '', email: '' },
     items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
     validityDays: 15,
-    paymentTerms: '50% de adelanto y 50% contra entrega',
+    paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
   }
 }
 
@@ -77,9 +79,12 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
     <form onSubmit={handleSubmit}>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-800">
-          {existing ? 'Editar Factura' : 'Nueva Factura'}
+          {existing ? 'Editar Cotización' : 'Nueva Cotización'}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {invoice.number && (
+            <span className="text-sm text-gray-400 font-mono mr-2">{invoice.number}</span>
+          )}
           <button
             type="button"
             onClick={onCancel}
@@ -91,7 +96,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
             type="submit"
             className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
           >
-            Guardar Factura
+            Generar Cotización
           </button>
         </div>
       </div>
@@ -105,13 +110,10 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
         />
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
 
-        {/* Validez */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Validez de la Oferta</h2>
           <div className="flex items-center gap-4">
-            <label className="text-sm text-gray-600">
-              Válida por
-            </label>
+            <label className="text-sm text-gray-600">Válida por</label>
             <input
               type="number"
               min="1"
@@ -120,16 +122,11 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
               onChange={e => handleFieldChange('validityDays', Number(e.target.value) || 15)}
               className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
-            <label className="text-sm text-gray-600">
-              días desde la fecha de emisión
-            </label>
-            <span className="text-sm text-blue-600 font-medium ml-2">
-              (vence el {calcExpiry()})
-            </span>
+            <label className="text-sm text-gray-600">días desde la fecha de emisión</label>
+            <span className="text-sm text-blue-600 font-medium ml-2">(vence el {calcExpiry()})</span>
           </div>
         </div>
 
-        {/* Términos de pago */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Términos de Pago</h2>
           <textarea

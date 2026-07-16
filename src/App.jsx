@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import InvoiceList from './components/InvoiceList'
 import InvoiceForm from './components/InvoiceForm'
 import InvoicePreview from './components/InvoicePreview'
+import CustomerList from './components/CustomerList'
 import { getInvoices, getInvoice, deleteInvoice } from './utils/storage'
 
 export default function App() {
@@ -30,11 +31,16 @@ export default function App() {
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('¿Eliminar esta factura?')) {
+    if (window.confirm('¿Eliminar esta cotización?')) {
       deleteInvoice(id)
       setInvoices(getInvoices())
     }
   }
+
+  const navClass = (active) =>
+    `px-3 py-1.5 text-sm rounded-lg transition ${
+      active ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
+    }`
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,24 +51,13 @@ export default function App() {
             <p className="text-xs text-gray-500">Mantenimiento Eléctrico & Video Vigilancia</p>
           </div>
           <nav className="flex gap-2">
-            <button
-              onClick={() => { setView('list'); setSelectedInvoice(null) }}
-              className={`px-3 py-1.5 text-sm rounded-lg transition ${
-                view === 'list'
-                  ? 'bg-blue-100 text-blue-700 font-medium'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Facturas
+            <button onClick={() => { setView('list'); setSelectedInvoice(null) }} className={navClass(view === 'list')}>
+              Cotizaciones
             </button>
-            <button
-              onClick={() => { setSelectedInvoice(null); setView('form') }}
-              className={`px-3 py-1.5 text-sm rounded-lg transition ${
-                view === 'form' && !selectedInvoice
-                  ? 'bg-blue-100 text-blue-700 font-medium'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
+            <button onClick={() => { setSelectedInvoice(null); setView('customers') }} className={navClass(view === 'customers')}>
+              Clientes
+            </button>
+            <button onClick={() => { setSelectedInvoice(null); setView('form') }} className={navClass(view === 'form' && !selectedInvoice)}>
               + Nueva
             </button>
           </nav>
@@ -91,6 +86,9 @@ export default function App() {
             invoice={selectedInvoice}
             onBack={() => setView('list')}
           />
+        )}
+        {view === 'customers' && (
+          <CustomerList />
         )}
       </main>
     </div>

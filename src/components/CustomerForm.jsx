@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react'
+import { getCustomers, createCustomer } from '../utils/customers'
+
 const FINAL_CONSUMER = {
   name: 'CONSUMIDOR FINAL',
   cedula: '9999999999',
@@ -8,9 +11,16 @@ const FINAL_CONSUMER = {
 
 export default function CustomerForm({ customer, customerType, onChange, onTypeChange }) {
   const isFinal = customerType === 'final'
+  const [savedCustomers, setSavedCustomers] = useState([])
+  const [selectedCustomerId, setSelectedCustomerId] = useState('')
+
+  useEffect(() => {
+    setSavedCustomers(getCustomers())
+  }, [])
 
   const handleTypeChange = (type) => {
     onTypeChange(type)
+    setSelectedCustomerId('')
     if (type === 'final') {
       onChange(FINAL_CONSUMER)
     } else {
@@ -19,7 +29,32 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
   }
 
   const handleChange = (e) => {
+    setSelectedCustomerId('')
     onChange({ ...customer, [e.target.name]: e.target.value })
+  }
+
+  const handleSelectCustomer = (id) => {
+    setSelectedCustomerId(id)
+    const found = savedCustomers.find(c => c.id === id)
+    if (found) {
+      onChange({
+        name: found.name || '',
+        cedula: found.cedula || '',
+        address: found.address || '',
+        phone: found.phone || '',
+        email: found.email || '',
+      })
+    }
+  }
+
+  const handleSaveToRegistry = () => {
+    if (!customer.name.trim()) {
+      alert('Ingresa al menos el nombre del cliente para guardarlo')
+      return
+    }
+    createCustomer(customer)
+    setSavedCustomers(getCustomers())
+    alert('Cliente guardado en el registro')
   }
 
   const fields = [
@@ -63,24 +98,50 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
           <p className="text-blue-500 text-xs mt-2">Los datos se completarán automáticamente al guardar.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fields.map(f => (
-            <div key={f.name} className={!f.required ? 'md:col-span-2' : ''}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {f.label}
-                {f.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
-              <input
-                type={f.type}
-                name={f.name}
-                value={customer[f.name] || ''}
-                onChange={handleChange}
-                required={f.required}
+        <div className="space-y-4">
+          {savedCustomers.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cliente registrado</label>
+              <select
+                value={selectedCustomerId}
+                onChange={e => handleSelectCustomer(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder={f.placeholder}
-              />
+              >
+                <option value="">-- Seleccionar del registro --</option>
+                {savedCustomers.map(c => (
+                  <option key={c.id} value={c.id}>{c.name} - {c.cedula}</option>
+                ))}
+              </select>
             </div>
-          ))}
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {fields.map(f => (
+              <div key={f.name} className={!f.required ? 'md:col-span-2' : ''}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {f.label}
+                  {f.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                <input
+                  type={f.type}
+                  name={f.name}
+                  value={customer[f.name] || ''}
+                  onChange={handleChange}
+                  required={f.required}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  placeholder={f.placeholder}
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSaveToRegistry}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            + Guardar datos en mi registro de clientes
+          </button>
         </div>
       )}
     </div>

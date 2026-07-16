@@ -28,11 +28,10 @@ export default function InvoicePreview({ invoice, onBack }) {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 print:p-4 print:shadow-none print:border-none">
-        {/* Encabezado */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">PROFORMA</h1>
-            <p className="text-sm text-gray-500 mt-1">N° {invoice.id.slice(-6).toUpperCase()}</p>
+            <p className="text-sm text-gray-500 mt-1">{invoice.number || `#${invoice.id.slice(-6).toUpperCase()}`}</p>
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">Fecha de emisión</p>
@@ -42,7 +41,6 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         </div>
 
-        {/* Datos del cliente */}
         <div className="mb-8 pb-6 border-b border-gray-200">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Datos del Cliente</h2>
           {isFinal ? (
@@ -61,7 +59,6 @@ export default function InvoicePreview({ invoice, onBack }) {
           )}
         </div>
 
-        {/* Tabla de productos */}
         <table className="w-full text-sm mb-8">
           <thead>
             <tr className="border-b-2 border-gray-200">
@@ -83,7 +80,6 @@ export default function InvoicePreview({ invoice, onBack }) {
           </tbody>
         </table>
 
-        {/* Total */}
         <div className="flex justify-end pt-4 border-t-2 border-gray-200">
           <div className="text-right">
             <p className="text-sm text-gray-500 mb-1">TOTAL</p>
@@ -91,7 +87,6 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         </div>
 
-        {/* Términos de pago */}
         {invoice.paymentTerms && (
           <div className="mt-8 pt-6 border-t border-gray-200">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Condiciones de Pago</h2>
@@ -99,11 +94,9 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         )}
 
-        {/* Validez */}
         <div className="mt-4 pt-4 border-t border-gray-100">
           <p className="text-xs text-gray-400">
             Oferta válida por {invoice.validityDays || 15} días desde la fecha de emisión.
-            Precios sujetos a cambio sin previo aviso.
           </p>
         </div>
       </div>
