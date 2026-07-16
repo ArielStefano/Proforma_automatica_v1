@@ -29,7 +29,15 @@ export default function InvoicePreview({ invoice, onBack }) {
     if (!printRef.current) return
     setDownloading(true)
     try {
-      const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true })
+      const canvas = await html2canvas(printRef.current, {
+        scale: 2,
+        useCORS: true,
+        onclone: (clonedDoc) => {
+          const s = clonedDoc.createElement('style')
+          s.textContent = `:root,*{--color-gray-50:#f9fafb;--color-gray-100:#f3f4f6;--color-gray-200:#e5e7eb;--color-gray-300:#d1d5db;--color-gray-400:#9ca3af;--color-gray-500:#6b7280;--color-gray-600:#4b5563;--color-gray-700:#374151;--color-gray-800:#1f2937;--color-gray-900:#111827;--color-amber-50:#fffbeb;--color-amber-100:#fef3c7;--color-amber-200:#fde68a;--color-amber-300:#fcd34d;--color-amber-600:#d97706;--color-amber-700:#b45309;--color-blue-50:#eff6ff;--color-blue-600:#2563eb;--color-green-100:#dcfce7;--color-green-600:#16a34a;--color-green-700:#15803d;--color-red-50:#fef2f2;--color-red-100:#fee2e2;--color-red-400:#f87171;--color-red-500:#ef4444;--color-red-600:#dc2626;--color-red-700:#b91c1c}`
+          clonedDoc.head.appendChild(s)
+        }
+      })
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfW = pdf.internal.pageSize.getWidth()
