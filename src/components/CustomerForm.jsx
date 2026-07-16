@@ -15,17 +15,13 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
   const [selectedCustomerId, setSelectedCustomerId] = useState('')
 
   useEffect(() => {
-    setSavedCustomers(getCustomers())
+    getCustomers().then(setSavedCustomers).catch(console.error)
   }, [])
 
   const handleTypeChange = (type) => {
     onTypeChange(type)
     setSelectedCustomerId('')
-    if (type === 'final') {
-      onChange(FINAL_CONSUMER)
-    } else {
-      onChange({ name: '', cedula: '', address: '', phone: '', email: '' })
-    }
+    onChange(type === 'final' ? FINAL_CONSUMER : { name: '', cedula: '', address: '', phone: '', email: '' })
   }
 
   const handleChange = (e) => {
@@ -47,14 +43,18 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
     }
   }
 
-  const handleSaveToRegistry = () => {
+  const handleSaveToRegistry = async () => {
     if (!customer.name.trim()) {
       alert('Ingresa al menos el nombre del cliente para guardarlo')
       return
     }
-    createCustomer(customer)
-    setSavedCustomers(getCustomers())
-    alert('Cliente guardado en el registro')
+    try {
+      await createCustomer(customer)
+      setSavedCustomers(await getCustomers())
+      alert('Cliente guardado en el registro')
+    } catch (e) {
+      alert('Error al guardar cliente: ' + e.message)
+    }
   }
 
   const fields = [
@@ -70,22 +70,12 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Datos del Cliente</h2>
         <div className="flex bg-gray-100 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => handleTypeChange('client')}
-            className={`px-4 py-1.5 text-sm rounded-md transition ${
-              !isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
+          <button type="button" onClick={() => handleTypeChange('client')}
+            className={`px-4 py-1.5 text-sm rounded-md transition ${!isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'}`}>
             Cliente
           </button>
-          <button
-            type="button"
-            onClick={() => handleTypeChange('final')}
-            className={`px-4 py-1.5 text-sm rounded-md transition ${
-              isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
+          <button type="button" onClick={() => handleTypeChange('final')}
+            className={`px-4 py-1.5 text-sm rounded-md transition ${isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'}`}>
             Consumidor Final
           </button>
         </div>
@@ -102,11 +92,8 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
           {savedCustomers.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cliente registrado</label>
-              <select
-                value={selectedCustomerId}
-                onChange={e => handleSelectCustomer(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              >
+              <select value={selectedCustomerId} onChange={e => handleSelectCustomer(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 <option value="">-- Seleccionar del registro --</option>
                 {savedCustomers.map(c => (
                   <option key={c.id} value={c.id}>{c.name} - {c.cedula}</option>
@@ -119,27 +106,18 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
             {fields.map(f => (
               <div key={f.name} className={!f.required ? 'md:col-span-2' : ''}>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {f.label}
-                  {f.required && <span className="text-red-500 ml-1">*</span>}
+                  {f.label}{f.required && <span className="text-red-500 ml-1">*</span>}
                 </label>
-                <input
-                  type={f.type}
-                  name={f.name}
-                  value={customer[f.name] || ''}
-                  onChange={handleChange}
+                <input type={f.type} name={f.name} value={customer[f.name] || ''} onChange={handleChange}
                   required={f.required}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder={f.placeholder}
-                />
+                  placeholder={f.placeholder} />
               </div>
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={handleSaveToRegistry}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
+          <button type="button" onClick={handleSaveToRegistry}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium">
             + Guardar datos en mi registro de clientes
           </button>
         </div>

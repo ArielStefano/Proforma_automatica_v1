@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react'
 import { getCustomers, saveCustomer, deleteCustomer } from '../utils/customers'
 
-export default function CustomerList({ onBack }) {
+export default function CustomerList() {
   const [customers, setCustomers] = useState([])
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState({ name: '', cedula: '', address: '', phone: '', email: '' })
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => { setCustomers(getCustomers()) }, [])
+  const load = async () => {
+    try {
+      setLoading(true)
+      setCustomers(await getCustomers())
+    } catch (e) {
+      console.error('Error al cargar clientes:', e)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const refresh = () => setCustomers(getCustomers())
+  useEffect(() => { load() }, [])
 
   const startEdit = (c) => {
     setEditing(c)
@@ -25,18 +35,25 @@ export default function CustomerList({ onBack }) {
     setForm({ name: '', cedula: '', address: '', phone: '', email: '' })
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) { alert('El nombre es obligatorio'); return }
     if (!form.cedula.trim()) { alert('La cédula/RUC es obligatoria'); return }
-    saveCustomer({ ...form, id: editing?.id || undefined })
-    refresh()
-    cancelEdit()
+    try {
+      await saveCustomer({ ...form, id: editing?.id || undefined })
+      await load()
+      cancelEdit()
+    } catch (e) {
+      alert('Error al guardar: ' + e.message)
+    }
   }
 
-  const handleDelete = (id) => {
-    if (window.confirm('¿Eliminar este cliente del registro?')) {
-      deleteCustomer(id)
-      refresh()
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Eliminar este cliente del registro?')) return
+    try {
+      await deleteCustomer(id)
+      await load()
+    } catch (e) {
+      alert('Error al eliminar: ' + e.message)
     }
   }
 
@@ -71,6 +88,8 @@ export default function CustomerList({ onBack }) {
       </div>
     )
   }
+
+  if (loading) return <div className="text-center py-20 text-gray-400">Cargando clientes...</div>
 
   return (
     <div>

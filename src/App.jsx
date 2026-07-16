@@ -9,31 +9,46 @@ export default function App() {
   const [view, setView] = useState('list')
   const [invoices, setInvoices] = useState([])
   const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    setInvoices(getInvoices())
-  }, [])
+  const loadInvoices = async () => {
+    try {
+      setLoading(true)
+      const data = await getInvoices()
+      setInvoices(data)
+    } catch (e) {
+      console.error('Error al cargar cotizaciones:', e)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  const refreshList = () => {
-    setInvoices(getInvoices())
+  useEffect(() => { loadInvoices() }, [])
+
+  const refreshList = async () => {
+    await loadInvoices()
     setView('list')
     setSelectedInvoice(null)
   }
 
-  const handleView = (id) => {
-    setSelectedInvoice(getInvoice(id))
+  const handleView = async (id) => {
+    setSelectedInvoice(await getInvoice(id))
     setView('preview')
   }
 
-  const handleEdit = (id) => {
-    setSelectedInvoice(getInvoice(id))
+  const handleEdit = async (id) => {
+    setSelectedInvoice(await getInvoice(id))
     setView('form')
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('¿Eliminar esta cotización?')) {
-      deleteInvoice(id)
-      setInvoices(getInvoices())
+      try {
+        await deleteInvoice(id)
+        await loadInvoices()
+      } catch (e) {
+        alert('Error al eliminar: ' + e.message)
+      }
     }
   }
 
@@ -65,7 +80,9 @@ export default function App() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-8">
-        {view === 'list' && (
+        {loading && view === 'list' ? (
+          <div className="text-center py-20 text-gray-400">Cargando cotizaciones...</div>
+        ) : view === 'list' ? (
           <InvoiceList
             invoices={invoices}
             onNew={() => { setSelectedInvoice(null); setView('form') }}
@@ -73,23 +90,20 @@ export default function App() {
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
-        )}
-        {view === 'form' && (
+        ) : view === 'form' ? (
           <InvoiceForm
             invoice={selectedInvoice}
             onSave={refreshList}
             onCancel={refreshList}
           />
-        )}
-        {view === 'preview' && (
+        ) : view === 'preview' ? (
           <InvoicePreview
             invoice={selectedInvoice}
             onBack={() => setView('list')}
           />
-        )}
-        {view === 'customers' && (
+        ) : view === 'customers' ? (
           <CustomerList />
-        )}
+        ) : null}
       </main>
     </div>
   )

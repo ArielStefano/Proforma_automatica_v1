@@ -3,77 +3,77 @@ import CustomerForm from './CustomerForm'
 import ItemTable from './ItemTable'
 import { saveInvoice, generateId, getNextNumber } from '../utils/storage'
 
-function createEmptyInvoice() {
-  const { number } = getNextNumber()
-  return {
-    id: generateId(),
-    number,
-    date: new Date().toISOString().split('T')[0],
-    customerType: 'client',
-    customer: { name: '', cedula: '', address: '', phone: '', email: '' },
-    items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
-    validityDays: 15,
-    paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
-  }
-}
-
 export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
-  const [invoice, setInvoice] = useState(existing || createEmptyInvoice())
+  const [invoice, setInvoice] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    setInvoice(existing || createEmptyInvoice())
+    if (existing) {
+      setInvoice(existing)
+    } else {
+      getNextNumber().then(({ number }) => {
+        setInvoice({
+          id: generateId(),
+          number,
+          date: new Date().toISOString().split('T')[0],
+          customerType: 'client',
+          customer: { name: '', cedula: '', address: '', phone: '', email: '' },
+          items: [{ id: generateId(), description: '', quantity: 1, unitPrice: 0 }],
+          validityDays: 15,
+          paymentTerms: 'Para dar inicio formal a las actividades de este proyecto, se requiere un anticipo equivalente al 50% del total cotizado. El 50% restante se liquidará contra entrega final del proyecto.',
+        })
+      })
+    }
   }, [existing])
 
   const handleCustomerChange = (customer) => {
-    setInvoice(prev => ({ ...prev, customer }))
+    setInvoice(prev => prev ? { ...prev, customer } : prev)
   }
 
   const handleCustomerTypeChange = (customerType) => {
-    setInvoice(prev => ({ ...prev, customerType }))
+    setInvoice(prev => prev ? { ...prev, customerType } : prev)
   }
 
   const handleItemsChange = (items) => {
-    setInvoice(prev => ({ ...prev, items }))
+    setInvoice(prev => prev ? { ...prev, items } : prev)
   }
 
   const handleFieldChange = (field, value) => {
-    setInvoice(prev => ({ ...prev, [field]: value }))
+    setInvoice(prev => prev ? { ...prev, [field]: value } : prev)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!invoice) return
     if (invoice.customerType === 'client') {
-      if (!invoice.customer.name.trim()) {
-        alert('El nombre del cliente es obligatorio')
-        return
-      }
-      if (!invoice.customer.cedula.trim()) {
-        alert('La cédula/RUC del cliente es obligatoria')
-        return
-      }
-      if (!invoice.customer.address.trim()) {
-        alert('La dirección del cliente es obligatoria')
-        return
-      }
-      if (!invoice.customer.phone.trim()) {
-        alert('El teléfono del cliente es obligatorio')
-        return
-      }
+      if (!invoice.customer.name.trim()) { alert('El nombre del cliente es obligatorio'); return }
+      if (!invoice.customer.cedula.trim()) { alert('La cédula/RUC del cliente es obligatoria'); return }
+      if (!invoice.customer.address.trim()) { alert('La dirección del cliente es obligatoria'); return }
+      if (!invoice.customer.phone.trim()) { alert('El teléfono del cliente es obligatorio'); return }
     }
-    const hasItems = invoice.items.some(i => i.description.trim())
-    if (!hasItems) {
+    if (!invoice.items.some(i => i.description.trim())) {
       alert('Agrega al menos un producto o servicio')
       return
     }
-    saveInvoice(invoice)
-    onSave()
+    try {
+      setSaving(true)
+      await saveInvoice(invoice)
+      onSave()
+    } catch (e) {
+      alert('Error al guardar: ' + e.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const calcExpiry = () => {
+    if (!invoice) return ''
     const d = new Date(invoice.date)
     d.setDate(d.getDate() + (invoice.validityDays || 15))
     return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
   }
+
+  if (!invoice) return <div className="text-center py-20 text-gray-400">Cargando...</div>
 
   return (
     <form onSubmit={handleSubmit}>
@@ -94,9 +94,10 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
           </button>
           <button
             type="submit"
-            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+            disabled={saving}
+            className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
           >
-            Generar Cotización
+            {saving ? 'Guardando...' : 'Generar Cotización'}
           </button>
         </div>
       </div>
@@ -115,9 +116,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
           <div className="flex items-center gap-4">
             <label className="text-sm text-gray-600">Válida por</label>
             <input
-              type="number"
-              min="1"
-              max="90"
+              type="number" min="1" max="90"
               value={invoice.validityDays}
               onChange={e => handleFieldChange('validityDays', Number(e.target.value) || 15)}
               className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"

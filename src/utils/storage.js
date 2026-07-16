@@ -1,43 +1,75 @@
-const STORAGE_KEY = 'proforma_invoices'
-const COUNTER_KEY = 'proforma_counter'
+import { supabase } from './supabase'
 
-export function getInvoices() {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY)
-    return data ? JSON.parse(data) : []
-  } catch {
-    return []
+function toDb(invoice) {
+  return {
+    id: invoice.id,
+    number: invoice.number,
+    date: invoice.date,
+    customer_type: invoice.customerType,
+    customer: invoice.customer,
+    items: invoice.items,
+    validity_days: invoice.validityDays,
+    payment_terms: invoice.paymentTerms,
   }
 }
 
-export function saveInvoice(invoice) {
-  const invoices = getInvoices()
-  const index = invoices.findIndex(inv => inv.id === invoice.id)
-  if (index >= 0) {
-    invoices[index] = invoice
-  } else {
-    invoices.push(invoice)
+function fromDb(row) {
+  return {
+    id: row.id,
+    number: row.number,
+    date: row.date,
+    customerType: row.customer_type,
+    customer: row.customer,
+    items: row.items,
+    validityDays: row.validity_days,
+    paymentTerms: row.payment_terms,
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices))
+}
+
+export async function getInvoices() {
+  const { data, error } = await supabase
+    .from('cotizaciones')
+    .select('*')
+    .order('date', { ascending: false })
+  if (error) throw error
+  return (data || []).map(fromDb)
+}
+
+export async function saveInvoice(invoice) {
+  const { error } = await supabase
+    .from('cotizaciones')
+    .upsert(toDb(invoice))
+  if (error) throw error
   return invoice
 }
 
-export function deleteInvoice(id) {
-  const invoices = getInvoices().filter(inv => inv.id !== id)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices))
+export async function deleteInvoice(id) {
+  const { error } = await supabase
+    .from('cotizaciones')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
 }
 
-export function getInvoice(id) {
-  return getInvoices().find(inv => inv.id === id) || null
+export async function getInvoice(id) {
+  const { data, error } = await supabase
+    .from('cotizaciones')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (error) return null
+  return data ? fromDb(data) : null
+}
+
+export async function getNextNumber() {
+  const { data, error } = await supabase
+    .rpc('increment_counter', { key_name: 'proforma_counter' })
+  if (error) throw error
+  const year = new Date().getFullYear()
+  const seq = data || 1
+  return { number: `COT-${year}-${String(seq).padStart(4, '0')}`, seq }
 }
 
 export function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
-}
-
-export function getNextNumber() {
-  const count = Number(localStorage.getItem(COUNTER_KEY) || '0') + 1
-  localStorage.setItem(COUNTER_KEY, String(count))
-  const year = new Date().getFullYear()
-  return { number: `COT-${year}-${String(count).padStart(4, '0')}`, seq: count }
 }
