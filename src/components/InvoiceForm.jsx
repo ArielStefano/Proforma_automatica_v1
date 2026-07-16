@@ -164,6 +164,30 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Resumen</h2>
+          {(() => {
+            const sub = invoice.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0)
+            const dv = invoice.discountValue || 0
+            const da = invoice.discountType === 'percentage' ? sub * (dv / 100) : dv
+            const tot = Math.max(0, sub - da)
+            return (
+              <div className="text-right space-y-1">
+                <p className="text-sm text-gray-500">Subtotal: ${formatCurrency(sub)}</p>
+                {da > 0 && (
+                  <p className="text-sm text-red-600">
+                    Descuento: -${formatCurrency(da)}
+                    <span className="text-gray-400 text-xs ml-1">
+                      ({invoice.discountType === 'percentage' ? `${dv}%` : '$' + formatCurrency(dv)})
+                    </span>
+                  </p>
+                )}
+                <p className="text-lg font-bold text-gray-800 border-t border-gray-200 pt-1">Total: ${formatCurrency(tot)}</p>
+              </div>
+            )
+          })()}
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Validez de la Oferta</h2>
           <div className="flex items-center gap-4 flex-wrap">
             <label className="text-sm text-gray-600">Válida por</label>
