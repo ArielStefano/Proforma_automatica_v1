@@ -115,6 +115,10 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel }) {
             className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
             Cancelar
           </button>
+          <button type="button" onClick={() => onPreview && onPreview(invoice)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+            Vista Previa
+          </button>
           <button type="button" onClick={handleSaveDraft} disabled={saving || isFinalized}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition disabled:opacity-50">
             {saving ? 'Guardando...' : 'Guardar Borrador'}

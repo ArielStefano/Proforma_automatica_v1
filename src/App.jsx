@@ -3,12 +3,14 @@ import InvoiceList from './components/InvoiceList'
 import InvoiceForm from './components/InvoiceForm'
 import InvoicePreview from './components/InvoicePreview'
 import CustomerList from './components/CustomerList'
+import CompanySettings from './components/CompanySettings'
 import { getInvoices, getInvoice, deleteInvoice } from './utils/storage'
 
 export default function App() {
   const [view, setView] = useState('list')
   const [invoices, setInvoices] = useState([])
   const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [previewReturn, setPreviewReturn] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const loadInvoices = async () => {
@@ -52,6 +54,12 @@ export default function App() {
     }
   }
 
+  const handleFormPreview = (invoice) => {
+    setSelectedInvoice(invoice)
+    setPreviewReturn('form')
+    setView('preview')
+  }
+
   const navClass = (active) =>
     `px-3 py-1.5 text-sm rounded-lg transition ${
       active ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
@@ -59,7 +67,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-gray-200 print:hidden">
         <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-xl font-bold text-gray-800">Proforma Automática</h1>
@@ -71,6 +79,9 @@ export default function App() {
             </button>
             <button onClick={() => { setSelectedInvoice(null); setView('customers') }} className={navClass(view === 'customers')}>
               Clientes
+            </button>
+            <button onClick={() => { setSelectedInvoice(null); setView('settings') }} className={navClass(view === 'settings')}>
+              Empresa
             </button>
             <button onClick={() => { setSelectedInvoice(null); setView('form') }} className={navClass(view === 'form' && !selectedInvoice)}>
               + Nueva
@@ -95,14 +106,17 @@ export default function App() {
             invoice={selectedInvoice}
             onSave={refreshList}
             onCancel={refreshList}
+            onPreview={handleFormPreview}
           />
         ) : view === 'preview' ? (
           <InvoicePreview
             invoice={selectedInvoice}
-            onBack={() => setView('list')}
+            onBack={() => { setView(previewReturn || 'list'); setPreviewReturn(null) }}
           />
         ) : view === 'customers' ? (
           <CustomerList />
+        ) : view === 'settings' ? (
+          <CompanySettings onBack={() => setView('list')} />
         ) : null}
       </main>
     </div>
