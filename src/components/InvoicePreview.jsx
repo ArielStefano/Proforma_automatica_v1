@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
 import { getCompanySettings } from '../utils/company'
 
 export default function InvoicePreview({ invoice, onBack }) {
   const [company, setCompany] = useState(null)
+  const [downloading, setDownloading] = useState(false)
+  const printRef = useRef()
 
   useEffect(() => {
     getCompanySettings().then(setCompany).catch(console.error)
@@ -20,6 +24,30 @@ export default function InvoicePreview({ invoice, onBack }) {
     return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
+  const handleDownload = async () => {
+    if (!printRef.current) return
+    setDownloading(true)
+    try {
+      const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfW = pdf.internal.pageSize.getWidth()
+      const pdfH = pdf.internal.pageSize.getHeight()
+      const ratio = canvas.width / canvas.height
+      let imgW = pdfW
+      let imgH = imgW / ratio
+      if (imgH > pdfH) { imgH = pdfH; imgW = imgH * ratio }
+      const x = (pdfW - imgW) / 2
+      const y = 0
+      pdf.addImage(imgData, 'PNG', x, y, imgW, imgH)
+      pdf.save(`${invoice.number || 'borrador'}.pdf`)
+    } catch (e) {
+      alert('Error al generar PDF: ' + e.message)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex justify-between items-center mb-6 print:hidden">
@@ -27,13 +55,19 @@ export default function InvoicePreview({ invoice, onBack }) {
           className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
           ← Volver
         </button>
-        <button onClick={() => window.print()}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-          Imprimir / PDF
-        </button>
+        <div className="flex gap-2">
+          <button onClick={handleDownload} disabled={downloading}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition disabled:opacity-50">
+            {downloading ? 'Generando...' : 'Descargar PDF'}
+          </button>
+          <button onClick={() => window.print()}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+            Imprimir
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 print:p-6 print:shadow-none print:border-none relative">
+      <div ref={printRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 print:p-6 print:shadow-none print:border-none relative">
         {isDraft && (
           <div className="absolute top-4 right-4">
             <span className="px-3 py-1 text-xs font-bold text-amber-700 bg-amber-100 border border-amber-300 rounded-full print:hidden">
@@ -42,7 +76,7 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         )}
 
-        {/* Encabezado: Logo + Empresa + Número */}
+        {/* Encabezado */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
           <div className="flex items-start gap-4">
             {company?.logo_url && (
@@ -64,7 +98,7 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         </div>
 
-        {/* Datos del cliente */}
+        {/* Cliente */}
         <div className="mb-8 pb-6 border-b border-gray-200">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Datos del Cliente</h2>
           {isFinal ? (
@@ -83,7 +117,7 @@ export default function InvoicePreview({ invoice, onBack }) {
           )}
         </div>
 
-        {/* Tabla de productos */}
+        {/* Productos */}
         <table className="w-full text-sm mb-8">
           <thead>
             <tr className="border-b border-gray-300">
@@ -121,6 +155,7 @@ export default function InvoicePreview({ invoice, onBack }) {
           </div>
         )}
 
+        {/* Observaciones */}
         {invoice.notes && (
           <div className="mt-6 pt-4 border-t border-gray-200">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Observaciones</h2>
