@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@page {
+  margin: 12mm 10mm;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
