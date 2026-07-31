@@ -28,7 +28,10 @@ export default function InvoicePreview({ invoice, onBack }) {
   const subtotal = invoice.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
   const discountVal = invoice.discountValue || 0
   const discountAmt = invoice.discountType === 'percentage' ? subtotal * (discountVal / 100) : discountVal
-  const total = Math.max(0, subtotal - discountAmt)
+  const base = Math.max(0, subtotal - discountAmt)
+  const ivaRate = invoice.ivaRate || 0
+  const ivaAmt = base * (ivaRate / 100)
+  const total = base + ivaAmt
   const isFinal = invoice.customerType === 'final'
   const isDraft = invoice.status !== 'finalized'
 
@@ -210,6 +213,18 @@ export default function InvoicePreview({ invoice, onBack }) {
                       Descuento {invoice.discountType === 'percentage' ? `(${discountVal}%)` : ''}
                     </span>
                     <span className="text-red-600 font-medium tabular-nums">-${formatCurrency(discountAmt)}</span>
+                  </div>
+                )}
+                {ivaRate > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Subtotal sin IVA</span>
+                    <span className="text-gray-800 font-medium tabular-nums">${formatCurrency(base)}</span>
+                  </div>
+                )}
+                {ivaRate > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">IVA ({ivaRate}%)</span>
+                    <span className="text-gray-800 font-medium tabular-nums">${formatCurrency(ivaAmt)}</span>
                   </div>
                 )}
                 <div className="border-t-2 border-gray-300 pt-2 mt-2">

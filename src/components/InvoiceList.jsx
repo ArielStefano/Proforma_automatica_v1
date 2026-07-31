@@ -40,7 +40,9 @@ export default function InvoiceList({ invoices, onNew, onView, onEdit, onDelete 
                 const sub = inv.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0)
                 const dv = inv.discountValue || 0
                 const da = inv.discountType === 'percentage' ? sub * (dv / 100) : dv
-                const total = Math.max(0, sub - da)
+                const base = Math.max(0, sub - da)
+                const rate = inv.ivaRate || 0
+                const total = base + base * (rate / 100)
                 return (
                   <tr key={inv.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="py-3 px-4 text-gray-800 font-mono text-xs">

@@ -35,6 +35,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
           companyId: def?.id || null,
           discountType: 'percentage',
           discountValue: 0,
+          ivaRate: 15,
           status: 'draft',
         })
       })
@@ -216,12 +217,28 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">IVA (Ecuador)</h2>
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="text-sm text-gray-600">Tarifa</label>
+            <input type="number" min="0" max="100" step="1"
+              value={invoice.ivaRate || 0}
+              onChange={e => handleFieldChange('ivaRate', Number(e.target.value) || 0)}
+              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+            <label className="text-sm text-gray-600">%</label>
+            <span className="text-sm text-gray-400 ml-2">Déjalo en 0 si la cotización no aplica IVA.</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Resumen</h2>
           {(() => {
             const sub = invoice.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0)
             const dv = invoice.discountValue || 0
             const da = invoice.discountType === 'percentage' ? sub * (dv / 100) : dv
-            const tot = Math.max(0, sub - da)
+            const base = Math.max(0, sub - da)
+            const rate = invoice.ivaRate || 0
+            const iva = base * (rate / 100)
+            const tot = base + iva
             return (
               <div className="text-right space-y-1">
                 <p className="text-sm text-gray-500">Subtotal: ${formatCurrency(sub)}</p>
@@ -233,6 +250,8 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
                     </span>
                   </p>
                 )}
+                <p className="text-sm text-gray-500">Subtotal sin IVA: ${formatCurrency(base)}</p>
+                <p className="text-sm text-gray-500">IVA ({rate}%): ${formatCurrency(iva)}</p>
                 <p className="text-lg font-bold text-gray-800 border-t border-gray-200 pt-1">Total: ${formatCurrency(tot)}</p>
               </div>
             )

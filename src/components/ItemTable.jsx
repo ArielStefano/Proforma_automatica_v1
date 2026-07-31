@@ -3,7 +3,7 @@ import { generateId } from '../utils/storage'
 import { formatCurrency } from '../utils/format'
 
 function formatInput(n) {
-  return Number(n).toLocaleString('es-PY', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  return Number(n).toLocaleString('es-EC', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
 export default function ItemTable({ items, onChange }) {

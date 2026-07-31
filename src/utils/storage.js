@@ -14,6 +14,7 @@ function toDb(invoice) {
     company_id: invoice.companyId || null,
     discount_type: invoice.discountType || 'percentage',
     discount_value: invoice.discountValue || 0,
+    iva_rate: invoice.ivaRate || 0,
     status: invoice.status || 'draft',
   }
 }
@@ -32,6 +33,7 @@ function fromDb(row) {
     companyId: row.company_id || null,
     discountType: row.discount_type || 'percentage',
     discountValue: row.discount_value || 0,
+    ivaRate: row.iva_rate || 0,
     status: row.status || 'draft',
   }
 }
