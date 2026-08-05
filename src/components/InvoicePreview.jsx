@@ -5,7 +5,7 @@ import { getCompany, getDefaultCompany } from '../utils/company'
 import { formatCurrency } from '../utils/format'
 import { useToast } from '../utils/toast'
 
-const CSS_HEX_OVERRIDE = `:root,*{--color-gray-50:#f9fafb;--color-gray-100:#f3f4f6;--color-gray-200:#e5e7eb;--color-gray-300:#d1d5db;--color-gray-400:#9ca3af;--color-gray-500:#6b7280;--color-gray-600:#4b5563;--color-gray-700:#374151;--color-gray-800:#1f2937;--color-gray-900:#111827;--color-amber-50:#fffbeb;--color-amber-100:#fef3c7;--color-amber-200:#fde68a;--color-amber-300:#fcd34d;--color-amber-600:#d97706;--color-amber-700:#b45309;--color-blue-50:#eff6ff;--color-blue-600:#2563eb;--color-blue-700:#1d4ed8;--color-green-100:#dcfce7;--color-green-600:#16a34a;--color-green-700:#15803d;--color-red-50:#fef2f2;--color-red-100:#fee2e2;--color-red-400:#f87171;--color-red-500:#ef4444;--color-red-600:#dc2626;--color-red-700:#b91c1c}`
+const CSS_HEX_OVERRIDE = `:root,*{--color-white:#ffffff;--color-black:#000000;--color-gray-50:#f9fafb;--color-gray-100:#f3f4f6;--color-gray-200:#e5e7eb;--color-gray-300:#d1d5db;--color-gray-400:#9ca3af;--color-gray-500:#6b7280;--color-gray-600:#4b5563;--color-gray-700:#374151;--color-gray-800:#1f2937;--color-gray-900:#111827;--color-gray-950:#030712;--color-blue-50:#eff6ff;--color-blue-100:#dbeafe;--color-blue-200:#bfdbfe;--color-blue-300:#93c5fd;--color-blue-400:#60a5fa;--color-blue-500:#3b82f6;--color-blue-600:#2563eb;--color-blue-700:#1d4ed8;--color-blue-800:#1e40af;--color-blue-900:#1e3a8a;--color-amber-50:#fffbeb;--color-amber-100:#fef3c7;--color-amber-200:#fde68a;--color-amber-300:#fcd34d;--color-amber-400:#fbbf24;--color-amber-500:#f59e0b;--color-amber-600:#d97706;--color-amber-700:#b45309;--color-amber-800:#92400e;--color-green-50:#f0fdf4;--color-green-100:#dcfce7;--color-green-200:#bbf7d0;--color-green-300:#86efac;--color-green-400:#4ade80;--color-green-500:#22c55e;--color-green-600:#16a34a;--color-green-700:#15803d;--color-green-800:#166534;--color-red-50:#fef2f2;--color-red-100:#fee2e2;--color-red-200:#fecaca;--color-red-300:#fca5a5;--color-red-400:#f87171;--color-red-500:#ef4444;--color-red-600:#dc2626;--color-red-700:#b91c1c;--color-red-800:#991b1b}`
 
 export default function InvoicePreview({ invoice, onBack }) {
   const toast = useToast()
@@ -149,7 +149,7 @@ export default function InvoicePreview({ invoice, onBack }) {
         )}
 
         <div className="mx-8 mb-6 print:mx-6">
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl border border-gray-200/80 p-5">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 p-5">
             <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Datos del Cliente</h2>
             {isFinal ? (
               <div className="text-sm">
@@ -187,7 +187,7 @@ export default function InvoicePreview({ invoice, onBack }) {
                 </tr>
               ) : (
                 invoice.items.map((item, i) => (
-                  <tr key={item.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/70'} ${i < invoice.items.length - 1 ? 'border-b border-gray-100' : ''} hover:bg-gray-100/50 transition-colors`}>
+                  <tr key={item.id} className={`${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'} ${i < invoice.items.length - 1 ? 'border-b border-gray-100' : ''}`}>
                     <td className="py-3 pl-4 text-gray-800">{item.description || <span className="text-gray-400 italic">(sin descripción)</span>}</td>
                     <td className="py-3 text-center text-gray-800 font-medium">{item.quantity}</td>
                     <td className="py-3 text-right text-gray-700 tabular-nums">${formatCurrency(item.unitPrice)}</td>
