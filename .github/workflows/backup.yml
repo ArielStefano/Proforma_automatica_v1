@@ -1,0 +1,53 @@
+name: Supabase Backup
+
+on:
+  schedule:
+    - cron: '0 3,15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cambiar a rama backup-data
+        run: |
+          git checkout -B backup-data origin/backup-data 2>/dev/null || git checkout --orphan backup-data
+
+      - name: Descargar datos de Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          mkdir -p backups
+          for table in cotizaciones company_settings clientes counter; do
+            echo "Descargando $table..."
+            curl -sS --fail \
+              "$SUPABASE_URL/rest/v1/$table?select=*" \
+              -H "apikey: $SUPABASE_KEY" \
+              -H "Authorization: Bearer $SUPABASE_KEY" \
+              -o "backups/${table}.json" || echo "ERROR al descargar $table"
+          done
+          date -u +%Y-%m-%dT%H-%M-%SZ > backups/last-backup.txt
+          cat backups/last-backup.txt
+
+      - name: Commit y push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "backup-bot"
+          git config user.email "actions@github.com"
+          git add backups/
+          if git diff --cached --quiet; then
+            echo "Sin cambios, nada para guardar"
+          else
+            git commit -m "Backup Supabase $(date -u +%Y-%m-%dT%H-%M-%SZ)"
+            git push origin backup-data
+            echo "Backup subido a la rama backup-data"
+          fi
