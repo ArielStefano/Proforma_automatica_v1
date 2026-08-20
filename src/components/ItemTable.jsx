@@ -27,17 +27,17 @@ export default function ItemTable({ items, onChange }) {
   const total = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Productos / Servicios</h2>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+      <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Productos / Servicios</h2>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-2 px-1 text-gray-600 font-medium w-[40%]">Descripción</th>
-              <th className="text-center py-2 px-1 text-gray-600 font-medium w-[15%]">Cant.</th>
-              <th className="text-right py-2 px-1 text-gray-600 font-medium w-[18%]">P. Unit.</th>
-              <th className="text-right py-2 px-1 text-gray-600 font-medium w-[18%]">Total</th>
+            <tr className="border-b border-gray-200 dark:border-gray-600">
+              <th className="text-left py-2 px-1 text-gray-600 dark:text-gray-300 font-medium w-[40%]">Descripción</th>
+              <th className="text-center py-2 px-1 text-gray-600 dark:text-gray-300 font-medium w-[15%]">Cant.</th>
+              <th className="text-right py-2 px-1 text-gray-600 dark:text-gray-300 font-medium w-[18%]">P. Unit.</th>
+              <th className="text-right py-2 px-1 text-gray-600 dark:text-gray-300 font-medium w-[18%]">Total</th>
               <th className="text-center py-2 px-1 w-[9%]"></th>
             </tr>
           </thead>
@@ -45,13 +45,13 @@ export default function ItemTable({ items, onChange }) {
             {items.map(item => {
               const isFocused = focused === item.id
               return (
-                <tr key={item.id} className="border-b border-gray-100">
+                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700">
                   <td className="py-2 px-1">
                     <input
                       type="text"
                       value={item.description}
                       onChange={e => updateItem(item.id, 'description', e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                       placeholder="Ej: Cámara HD, Instalación..."
                     />
                   </td>
@@ -61,7 +61,7 @@ export default function ItemTable({ items, onChange }) {
                       min="1"
                       value={item.quantity}
                       onChange={e => updateItem(item.id, 'quantity', e.target.value)}
-                      className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none mx-auto block"
+                      className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none mx-auto block dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                     />
                   </td>
                   <td className="py-2 px-1">
@@ -75,10 +75,10 @@ export default function ItemTable({ items, onChange }) {
                         const raw = e.target.value.replace(/[^\d.,]/g, '').replace(/,/g, '')
                         updateItem(item.id, 'unitPrice', raw ? parseFloat(raw) : 0)
                       }}
-                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-right text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full border border-gray-300 rounded-lg px-2 py-1.5 text-right text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                     />
                   </td>
-                  <td className="py-2 px-1 text-right font-medium text-gray-800">
+                  <td className="py-2 px-1 text-right font-medium text-gray-800 dark:text-gray-200">
                     ${formatCurrency(item.quantity * item.unitPrice)}
                   </td>
                   <td className="py-2 px-1 text-center">
@@ -86,7 +86,7 @@ export default function ItemTable({ items, onChange }) {
                       type="button"
                       onClick={() => removeItem(item.id)}
                       disabled={items.length <= 1}
-                      className="text-red-400 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed text-lg leading-none"
+                      className="text-red-400 hover:text-red-600 disabled:text-gray-300 dark:disabled:text-gray-600 disabled:cursor-not-allowed text-lg leading-none"
                       title="Eliminar"
                     >
                       ✕
@@ -103,13 +103,13 @@ export default function ItemTable({ items, onChange }) {
         <button
           type="button"
           onClick={addItem}
-          className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
+          className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition dark:text-blue-400 dark:bg-blue-900/50 dark:hover:bg-blue-800"
         >
           + Agregar producto
         </button>
         <div className="text-right">
-          <span className="text-gray-500 text-sm mr-2">TOTAL:</span>
-          <span className="text-2xl font-bold text-gray-800">${formatCurrency(total)}</span>
+          <span className="text-gray-500 dark:text-gray-400 text-sm mr-2">TOTAL:</span>
+          <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">${formatCurrency(total)}</span>
         </div>
       </div>
     </div>

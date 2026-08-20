@@ -68,14 +68,14 @@ export default function CustomerList() {
   if (editing !== null) {
     return (
       <div className="max-w-lg mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
             {editing.id ? 'Editar Cliente' : 'Nuevo Cliente'}
           </h2>
           <div className="space-y-4">
             {['name','cedula','address','phone','email'].map(f => (
               <div key={f}>
-                <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 capitalize">
                   {f === 'cedula' ? 'Cédula / RUC' : f}
                   {f !== 'email' && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -83,26 +83,30 @@ export default function CustomerList() {
                   type={f === 'email' ? 'email' : 'text'}
                   value={form[f]}
                   onChange={e => setForm({ ...form, [f]: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
             ))}
           </div>
           <div className="flex justify-end gap-2 mt-6">
-            <button type="button" onClick={cancelEdit} className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancelar</button>
-            <button type="button" onClick={handleSave} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">Guardar</button>
+            <button type="button" onClick={cancelEdit}
+              className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+              Cancelar</button>
+            <button type="button" onClick={handleSave}
+              className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+              Guardar</button>
           </div>
         </div>
       </div>
     )
   }
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Cargando clientes...</div>
+  if (loading) return <div className="text-center py-20 text-gray-400 dark:text-gray-500">Cargando clientes...</div>
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">Mis Clientes ({customers.length})</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Mis Clientes ({customers.length})</h2>
         <button onClick={startNew} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
           + Nuevo Cliente
         </button>
@@ -110,30 +114,34 @@ export default function CustomerList() {
 
       {customers.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-400 mb-4">No hay clientes registrados aún</p>
-          <p className="text-sm text-gray-400">Agrega clientes desde el formulario de cotización o desde aquí.</p>
+          <p className="text-gray-400 dark:text-gray-500 mb-4">No hay clientes registrados aún</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500">Agrega clientes desde el formulario de cotización o desde aquí.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-4 text-gray-600 font-medium">Nombre</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-medium">Cédula/RUC</th>
-                <th className="text-left py-3 px-4 text-gray-600 font-medium">Teléfono</th>
-                <th className="text-center py-3 px-4 text-gray-600 font-medium">Acciones</th>
+              <tr className="bg-gray-50 border-b border-gray-200 dark:bg-gray-700/50 dark:border-gray-600">
+                <th className="text-left py-3 px-4 text-gray-600 dark:text-gray-300 font-medium">Nombre</th>
+                <th className="text-left py-3 px-4 text-gray-600 dark:text-gray-300 font-medium">Cédula/RUC</th>
+                <th className="text-left py-3 px-4 text-gray-600 dark:text-gray-300 font-medium">Teléfono</th>
+                <th className="text-center py-3 px-4 text-gray-600 dark:text-gray-300 font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {customers.map(c => (
-                <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-800">{c.name}</td>
-                  <td className="py-3 px-4 text-gray-600">{c.cedula}</td>
-                  <td className="py-3 px-4 text-gray-600">{c.phone}</td>
+                <tr key={c.id} className="border-b border-gray-100 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50">
+                  <td className="py-3 px-4 text-gray-800 dark:text-gray-200">{c.name}</td>
+                  <td className="py-3 px-4 text-gray-600 dark:text-gray-300">{c.cedula}</td>
+                  <td className="py-3 px-4 text-gray-600 dark:text-gray-300">{c.phone}</td>
                   <td className="py-3 px-4 text-center">
                     <div className="flex justify-center gap-2">
-                      <button onClick={() => startEdit(c)} className="px-3 py-1 text-xs font-medium text-amber-600 bg-amber-50 rounded hover:bg-amber-100">Editar</button>
-                      <button onClick={() => handleDelete(c.id)} className="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100">Eliminar</button>
+                      <button onClick={() => startEdit(c)}
+                        className="px-3 py-1 text-xs font-medium text-amber-600 bg-amber-50 rounded hover:bg-amber-100 dark:text-amber-400 dark:bg-amber-900/50 dark:hover:bg-amber-800">
+                        Editar</button>
+                      <button onClick={() => handleDelete(c.id)}
+                        className="px-3 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 dark:text-red-400 dark:bg-red-900/50 dark:hover:bg-red-800">
+                        Eliminar</button>
                     </div>
                   </td>
                 </tr>

@@ -68,34 +68,34 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
   ]
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Datos del Cliente</h2>
-        <div className="flex bg-gray-100 rounded-lg p-1">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Datos del Cliente</h2>
+        <div className="flex bg-gray-100 rounded-lg p-1 dark:bg-gray-700">
           <button type="button" onClick={() => handleTypeChange('client')}
-            className={`px-4 py-1.5 text-sm rounded-md transition ${!isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-1.5 text-sm rounded-md transition ${!isFinal ? 'bg-white text-gray-800 shadow-sm font-medium dark:bg-gray-600 dark:text-gray-100' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
             Cliente
           </button>
           <button type="button" onClick={() => handleTypeChange('final')}
-            className={`px-4 py-1.5 text-sm rounded-md transition ${isFinal ? 'bg-white text-gray-800 shadow-sm font-medium' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-1.5 text-sm rounded-md transition ${isFinal ? 'bg-white text-gray-800 shadow-sm font-medium dark:bg-gray-600 dark:text-gray-100' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}>
             Consumidor Final
           </button>
         </div>
       </div>
 
       {isFinal ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-300">
           <p className="font-medium mb-1">Consumidor Final</p>
           <p>RUC: 9999999999</p>
-          <p className="text-blue-500 text-xs mt-2">Los datos se completarán automáticamente al guardar.</p>
+          <p className="text-blue-500 dark:text-blue-400 text-xs mt-2">Los datos se completarán automáticamente al guardar.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {savedCustomers.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cliente registrado</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cliente registrado</label>
               <select value={selectedCustomerId} onChange={e => handleSelectCustomer(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
                 <option value="">-- Seleccionar del registro --</option>
                 {savedCustomers.map(c => (
                   <option key={c.id} value={c.id}>{c.name} - {c.cedula}</option>
@@ -109,12 +109,12 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
               const errKey = 'customer_' + f.name
               return (
                 <div key={f.name} className={!f.required ? 'md:col-span-2' : ''}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {f.label}{f.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
                   <input type={f.type} name={f.name} value={customer[f.name] || ''} onChange={handleChange}
                     required={f.required}
-                    className={`w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none ${errors[errKey] ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
+                    className={`w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 ${errors[errKey] ? 'border-red-400 bg-red-50 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'}`}
                     placeholder={f.placeholder} />
                   {errors[errKey] && <p className="text-xs text-red-500 mt-1">{errors[errKey]}</p>}
                 </div>
@@ -123,7 +123,7 @@ export default function CustomerForm({ customer, customerType, onChange, onTypeC
           </div>
 
           <button type="button" onClick={handleSaveToRegistry}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium dark:text-blue-400 dark:hover:text-blue-300">
             + Guardar datos en mi registro de clientes
           </button>
         </div>

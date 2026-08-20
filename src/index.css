@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @page {
   margin: 12mm 10mm;
 }
@@ -9,4 +11,8 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+}
+
+html {
+  transition: color 0.2s, background-color 0.2s;
 }

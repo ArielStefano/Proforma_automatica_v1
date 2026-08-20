@@ -129,7 +129,7 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
     return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
-  if (!invoice) return <div className="text-center py-20 text-gray-400">Cargando...</div>
+  if (!invoice) return <div className="text-center py-20 text-gray-400 dark:text-gray-500">Cargando...</div>
 
   const isFinalized = invoice.status === 'finalized'
 
@@ -137,27 +137,27 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
     <form>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             {existing ? 'Editar Cotización' : 'Nueva Cotización'}
           </h2>
           {invoice.number && (
-            <p className="text-sm text-gray-400 font-mono mt-1">{invoice.number}</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 font-mono mt-1">{invoice.number}</p>
           )}
           {isFinalized && (
-            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">Finalizada</span>
+            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full dark:bg-green-900/50 dark:text-green-400">Finalizada</span>
           )}
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700">
             Cancelar
           </button>
           <button type="button" onClick={() => onPreview && onPreview(invoice)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition dark:text-gray-200 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700">
             Vista Previa
           </button>
           <button type="button" onClick={handleSaveDraft} disabled={saving || isFinalized}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition disabled:opacity-50">
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition disabled:opacity-50 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
             {saving ? 'Guardando...' : 'Guardar Borrador'}
           </button>
           <button type="button" onClick={handleFinalize} disabled={saving}
@@ -168,16 +168,16 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Empresa Emisora</h2>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Empresa Emisora</h2>
           </div>
           {companies.length === 0 ? (
-            <p className="text-sm text-gray-400">No hay empresas registradas. Ve a Configuración &gt; Empresa para agregar una.</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">No hay empresas registradas. Ve a Configuración &gt; Empresa para agregar una.</p>
           ) : (
             <select value={invoice.companyId || companies[0]?.id || ''}
               onChange={e => handleFieldChange('companyId', e.target.value || null)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
               {companies.map(c => (
                 <option key={c.id} value={c.id}>{c.name || '(sin nombre)'}</option>
               ))}
@@ -192,22 +192,22 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
         <ItemTable items={invoice.items} onChange={handleItemsChange} />
         {errors.items && <p className="text-xs text-red-500 -mt-4">{errors.items}</p>}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Descuento</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Descuento</h2>
           <div className="flex items-center gap-4 flex-wrap">
             <select value={invoice.discountType}
               onChange={e => handleFieldChange('discountType', e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100">
               <option value="percentage">Porcentaje (%)</option>
               <option value="fixed">Monto Fijo ($)</option>
             </select>
             <input type="number" min="0" step={invoice.discountType === 'percentage' ? '1' : '0.01'}
               value={invoice.discountValue}
               onChange={e => handleFieldChange('discountValue', Number(e.target.value) || 0)}
-              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-28 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
               placeholder="0" />
             {invoice.discountValue > 0 && (
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {invoice.discountType === 'percentage'
                   ? `- ${invoice.discountValue}%`
                   : `- $${formatCurrency(invoice.discountValue)}`}
@@ -216,21 +216,21 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">IVA (Ecuador)</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">IVA (Ecuador)</h2>
           <div className="flex items-center gap-4 flex-wrap">
-            <label className="text-sm text-gray-600">Tarifa</label>
+            <label className="text-sm text-gray-600 dark:text-gray-300">Tarifa</label>
             <input type="number" min="0" max="100" step="1"
               value={invoice.ivaRate || 0}
               onChange={e => handleFieldChange('ivaRate', Number(e.target.value) || 0)}
-              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
-            <label className="text-sm text-gray-600">%</label>
-            <span className="text-sm text-gray-400 ml-2">Déjalo en 0 si la cotización no aplica IVA.</span>
+              className="w-24 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
+            <label className="text-sm text-gray-600 dark:text-gray-300">%</label>
+            <span className="text-sm text-gray-400 dark:text-gray-500 ml-2">Déjalo en 0 si la cotización no aplica IVA.</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Resumen</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Resumen</h2>
           {(() => {
             const sub = invoice.items.reduce((s, it) => s + it.quantity * it.unitPrice, 0)
             const dv = invoice.discountValue || 0
@@ -241,48 +241,48 @@ export default function InvoiceForm({ invoice: existing, onSave, onCancel, onPre
             const tot = base + iva
             return (
               <div className="text-right space-y-1">
-                <p className="text-sm text-gray-500">Subtotal: ${formatCurrency(sub)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Subtotal: ${formatCurrency(sub)}</p>
                 {da > 0 && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-red-600 dark:text-red-400">
                     Descuento: -${formatCurrency(da)}
-                    <span className="text-gray-400 text-xs ml-1">
+                    <span className="text-gray-400 dark:text-gray-500 text-xs ml-1">
                       ({invoice.discountType === 'percentage' ? `${dv}%` : '$' + formatCurrency(dv)})
                     </span>
                   </p>
                 )}
-                <p className="text-sm text-gray-500">Subtotal sin IVA: ${formatCurrency(base)}</p>
-                <p className="text-sm text-gray-500">IVA ({rate}%): ${formatCurrency(iva)}</p>
-                <p className="text-lg font-bold text-gray-800 border-t border-gray-200 pt-1">Total: ${formatCurrency(tot)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Subtotal sin IVA: ${formatCurrency(base)}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">IVA ({rate}%): ${formatCurrency(iva)}</p>
+                <p className="text-lg font-bold text-gray-800 dark:text-gray-100 border-t border-gray-200 dark:border-gray-600 pt-1">Total: ${formatCurrency(tot)}</p>
               </div>
             )
           })()}
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Validez de la Oferta</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Validez de la Oferta</h2>
           <div className="flex items-center gap-4 flex-wrap">
-            <label className="text-sm text-gray-600">Válida por</label>
+            <label className="text-sm text-gray-600 dark:text-gray-300">Válida por</label>
             <input type="number" min="1" max="90" value={invoice.validityDays}
               onChange={e => handleFieldChange('validityDays', Number(e.target.value) || 15)}
-              className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
-            <label className="text-sm text-gray-600">días desde la fecha de emisión</label>
-            <span className="text-sm text-blue-600 font-medium ml-2">(vence el {calcExpiry()})</span>
+              className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
+            <label className="text-sm text-gray-600 dark:text-gray-300">días desde la fecha de emisión</label>
+            <span className="text-sm text-blue-600 dark:text-blue-400 font-medium ml-2">(vence el {calcExpiry()})</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Términos de Pago</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Términos de Pago</h2>
           <textarea value={invoice.paymentTerms}
             onChange={e => handleFieldChange('paymentTerms', e.target.value)} rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" />
-          <p className="text-xs text-gray-400 mt-1">Puedes modificar este texto según cada cotización.</p>
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" />
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Puedes modificar este texto según cada cotización.</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Observaciones</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Observaciones</h2>
           <textarea value={invoice.notes}
             onChange={e => handleFieldChange('notes', e.target.value)} rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y" placeholder="Notas adicionales para el cliente..." />
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Notas adicionales para el cliente..." />
         </div>
       </div>
     </form>
