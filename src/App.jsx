@@ -4,6 +4,7 @@ import InvoiceForm from './components/InvoiceForm'
 import InvoicePreview from './components/InvoicePreview'
 import CustomerList from './components/CustomerList'
 import CompanySettings from './components/CompanySettings'
+import ProductCatalog from './components/ProductCatalog'
 import { getInvoices, getInvoice, deleteInvoice } from './utils/storage'
 import { ToastProvider, useToast } from './utils/toast'
 import { DarkModeProvider, useDarkMode } from './utils/darkMode'
@@ -98,6 +99,9 @@ function AppContent() {
             <button onClick={() => { setSelectedInvoice(null); setView('settings') }} className={navClass(view === 'settings')}>
               Empresa
             </button>
+            <button onClick={() => { setSelectedInvoice(null); setView('products') }} className={navClass(view === 'products')}>
+              Productos
+            </button>
             <button onClick={() => { setSelectedInvoice(null); setView('form') }} className={navClass(view === 'form' && !selectedInvoice)}>
               + Nueva
             </button>
@@ -133,6 +137,8 @@ function AppContent() {
           <CustomerList />
         ) : view === 'settings' ? (
           <CompanySettings onBack={() => setView('list')} />
+        ) : view === 'products' ? (
+          <ProductCatalog onBack={() => setView('list')} />
         ) : null}
       </main>
     </div>
